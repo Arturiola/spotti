@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../widgets/spotti_bottom_nav.dart';
 import '../widgets/spotti_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int)? onNavTap;
@@ -22,6 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final greeting = user?.displayName?.trim().isNotEmpty == true
+        ? user!.displayName!.trim()
+        : (user?.email?.split('@').first ?? 'користувачу');
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -33,19 +38,19 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Вітаємо, Артуре',
+                        'Вітаємо, $greeting',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      SizedBox(height: 4),
-                      Text(
+                      const SizedBox(height: 4),
+                      const Text(
                         'Заклади поруч із вами',
                         style: TextStyle(
                           fontSize: 14,
@@ -58,16 +63,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     radius: 22,
                     backgroundColor: AppColors.primaryContainer,
                     child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/avatar.png',
+                      child: (user?.photoURL != null && user!.photoURL!.isNotEmpty
+                          ? Image.network(user.photoURL!,
                         width: 44,
                         height: 44,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Icon(
-                          Icons.person,
-                          color: AppColors.primary,
-                        ),
-                      ),
+                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, color: AppColors.primary),
+                      )
+                          : Image.asset('assets/images/avatar.png', width: 44, height: 44,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, color: AppColors.primary))),
                     ),
                   ),
                 ],

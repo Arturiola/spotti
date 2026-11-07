@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../widgets/spotti_bottom_nav.dart';
 import '../widgets/spotti_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import '../services/crashlytics_service.dart';
+import '../widgets/app_feedback.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onEditProfilePressed;
@@ -28,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -55,22 +60,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           radius: 40,
                           backgroundColor: AppColors.primaryContainer,
                           child: ClipOval(
-                            child: Image.asset(
-                              'assets/images/avatar.png',
+                            child: (user?.photoURL != null && user!.photoURL!.isNotEmpty
+                                ? Image.network(user.photoURL!,
                               width: 80,
                               height: 80,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => const Icon(
-                                Icons.person,
-                                size: 50,
-                                color: AppColors.primary,
-                              ),
-                            ),
+                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 50, color: AppColors.primary),
+                            )
+                                : Image.asset('assets/images/avatar.png', width: 80, height: 80,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 50, color: AppColors.primary))),
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
-                          'Семенишин Артур',
+                        Text(
+                          user?.displayName?.isNotEmpty == true ? user!.displayName! : 'Користувач Spotti',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -78,8 +82,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'sem_artur@gmail.com',
+                        Text(
+                          user?.email ?? 'Немає електронної адреси',
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.textSecondary,
@@ -199,6 +203,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  if (kDebugMode)
+                    TextButton.icon(
+                      onPressed: () async {
+                        try {
+                          await CrashlyticsService.sendTestReport();
+                          if (context.mounted) showAppMessage(context, 'Тестову помилку зареєстровано для Crashlytics');
+                        } catch (error) {
+                          if (context.mounted) showAppError(context, error);
+                        }
+                      },
+                      icon: const Icon(Icons.bug_report_outlined),
+                      label: const Text('Надіслати тестовий звіт Crashlytics'),
+                    ),
                 ],
               ),
             ),

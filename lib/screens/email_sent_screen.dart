@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../widgets/spotti_button.dart';
+import '../repositories/auth_repository.dart';
+import '../widgets/app_feedback.dart';
 
 class EmailSentScreen extends StatefulWidget {
   final VoidCallback? onLoginPressed;
@@ -17,6 +19,42 @@ class EmailSentScreen extends StatefulWidget {
 }
 
 class _EmailSentScreenState extends State<EmailSentScreen> {
+  final _auth = AuthRepository();
+  bool _busy = false;
+
+  Future<void> _resend() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await _auth.sendEmailVerification();
+      if (!mounted) return;
+      setState(() => _resent = true);
+      showAppMessage(context, 'Лист надіслано. Перевірте пошту та спам.');
+    } catch (error) {
+      if (mounted) showAppError(context, error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _checkVerified() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final verified = await _auth.refreshEmailVerification();
+      if (!mounted) return;
+      if (verified) {
+        widget.onLoginPressed?.call();
+      } else {
+        showAppMessage(context, 'Адресу ще не підтверджено. Відкрийте посилання з листа.');
+      }
+    } catch (error) {
+      if (mounted) showAppError(context, error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   bool _resent = false;
 
   @override
@@ -26,9 +64,9 @@ class _EmailSentScreenState extends State<EmailSentScreen> {
       appBar: AppBar(
         leading: widget.onBackPressed != null
             ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: widget.onBackPressed,
-              )
+          icon: const Icon(Icons.arrow_back),
+          onPressed: widget.onBackPressed,
+        )
             : null,
         title: const Text('Spotti'),
       ),
@@ -110,20 +148,16 @@ class _EmailSentScreenState extends State<EmailSentScreen> {
               ],
               // Resend Button
               SpottiButton(
-                text: 'Повторно надіслати лист',
+                text: _busy ? 'Зачекайте...' : 'Повторно надіслати лист',
                 type: SpottiButtonType.primary,
-                onPressed: () {
-                  setState(() {
-                    _resent = true;
-                  });
-                },
+                onPressed: _busy ? null : _resend,
               ),
               const SizedBox(height: 16),
               // Go to login button
               SpottiButton(
-                text: 'Перейти до входу',
+                text: 'Я підтвердив пошту',
                 type: SpottiButtonType.secondary,
-                onPressed: widget.onLoginPressed ?? () {},
+                onPressed: _busy ? null : _checkVerified,
               ),
             ],
           ),

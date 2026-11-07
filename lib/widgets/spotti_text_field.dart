@@ -10,6 +10,7 @@ class SpottiTextField extends StatefulWidget {
   final bool isPassword;
   final TextInputType keyboardType;
   final ValueChanged<String>? onChanged;
+  final String? Function(String?)? validator;
 
   const SpottiTextField({
     super.key,
@@ -21,6 +22,7 @@ class SpottiTextField extends StatefulWidget {
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.onChanged,
+    this.validator,
   });
 
   @override
@@ -50,27 +52,28 @@ class _SpottiTextFieldState extends State<SpottiTextField> {
           ),
         ),
         const SizedBox(height: 6),
-        TextField(
+        TextFormField(
           controller: widget.controller,
           obscureText: widget.isPassword ? _obscureText : false,
           keyboardType: widget.keyboardType,
           onChanged: widget.onChanged,
+          validator: widget.validator,
           decoration: InputDecoration(
             hintText: widget.hint,
             suffixIcon: widget.isPassword
                 ? IconButton(
-                    icon: Icon(
-                      _obscureText
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      color: AppColors.textSecondary,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
-                  )
+              icon: Icon(
+                _obscureText
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                color: AppColors.textSecondary,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscureText = !_obscureText;
+                });
+              },
+            )
                 : null,
           ),
         ),

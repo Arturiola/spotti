@@ -35,9 +35,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       appBar: AppBar(
         leading: widget.onBackPressed != null
             ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: widget.onBackPressed,
-              )
+          icon: const Icon(Icons.arrow_back),
+          onPressed: widget.onBackPressed,
+        )
             : null,
         title: const Text('Spotti'),
       ),

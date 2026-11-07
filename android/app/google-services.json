@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "881255127289",
+    "project_id": "spotti-93127",
+    "storage_bucket": "spotti-93127.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:881255127289:android:9dbb33af71b1fafe2e6a28",
+        "android_client_info": {
+          "package_name": "com.example.spotti"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBN94EBmR0uxy8lO2_XHz-G0ZiSn-0cO2k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
